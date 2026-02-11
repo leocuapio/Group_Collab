@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "./logout-button";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
+
 
 export async function AuthButton() {
   const supabase = await createClient();
@@ -14,6 +16,14 @@ export async function AuthButton() {
   return user ? (
     <div className="flex items-center gap-4">
       Hey, {user.email}!
+      {/* Profile icon to link to the profile page */}
+      <Link
+        href="/protected/profile"
+        className="rounded-full p-1 hover:bg-accent transition"
+        aria-label="Profile"
+      >
+        <UserCircleIcon className="h-7 w-7 text-foreground" />
+      </Link>
       <LogoutButton />
     </div>
   ) : (

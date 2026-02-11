@@ -21,7 +21,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 const NAV_MENU = [
-  { name: "Projects", icon: RectangleStackIcon, href: "/projects" },
+  { name: "Projects", icon: RectangleStackIcon, href: "/protected/projects" },
   { name: "Account", icon: UserCircleIcon, href: "/account" },
   
   {
@@ -165,7 +165,7 @@ export function NavbarClient({
 
             <Button
               component={NextLink}
-              href="/projects"
+              href="/protected/projects"
               variant="contained"
               sx={{
                 backgroundColor: "#9ca3af",

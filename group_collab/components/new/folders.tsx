@@ -1,58 +1,61 @@
-type Folder = {
-    name: string;
-    notes: number;
-    size: string;
-    active?: boolean;
-  };
+import { createClient } from "@/lib/supabase/client";
+import { useEffect } from "react";
+import { useState } from "react";
+import { User } from "@supabase/supabase-js";
+import Link from "next/link";
+
+type Project = {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+}
   
-  const folders: Folder[] = [
-    { name: "UX research", notes: 233, size: "116.9 MB" },
-    { name: "Raw data", notes: 39, size: "180.2 MB", active: true },
-    { name: "Processed data", notes: 21, size: "23.4 MB" },
-    { name: "Reports", notes: 17, size: "490 MB" },
-    { name: "Data visualization", notes: 96, size: "1.3 GB" },
-    { name: "Ideas and Insights", notes: 103, size: "126.3 MB" },
-  ];
-  
-  export default function FoldersGrid() {
+
+export default function FoldersList() {
+    const supabase = createClient();
+    const [user, setUser] = useState<User | null>(null);
+    const [userName, setUserName] = useState<string | null>(null);
+    const [projects, setProjects] = useState<Project[]>([]);
+
+
+  useEffect(() => {
+    const load = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile) setUserName(profile.username);
+
+      const { data: projects } = await supabase
+        .from("projects")
+        .select("*");
+
+      setProjects(projects ?? []);
+    };
+
+    load();
+  }, []);
+
+
     return (
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {folders.map((folder) => (
-          <div
-            key={folder.name}
-            className={`relative h-44 rounded-3xl p-6 transition ${
-              folder.active
-                ? "bg-gradient-to-b from-blue-300 to-blue-500 text-white shadow-xl"
-                : "bg-white shadow-md"
-            }`}
-          >
-            {/* Folder tab */}
-            <div
-              className={`absolute left-6 top-[-10px] h-6 w-20 rounded-t-xl ${
-                folder.active ? "bg-blue-200" : "bg-gray-200"
-              }`}
-            />
-  
-            <h2 className="text-lg font-semibold">{folder.name}</h2>
-  
-            <p
-              className={`mt-1 text-sm ${
-                folder.active ? "text-blue-100" : "text-gray-500"
-              }`}
-            >
-              {folder.notes} notes
-            </p>
-  
-            <p
-              className={`absolute bottom-6 text-sm ${
-                folder.active ? "text-blue-100" : "text-gray-400"
-              }`}
-            >
-              {folder.size}
-            </p>
-          </div>
-        ))}
-      </div>
+        <div>
+            <h1>Folders List</h1>
+            <p>User Name: {userName}</p>
+            {projects.map((p) => (
+            <div key={p.id}>
+              <Link href={`/protected/specific_project?project=${encodeURIComponent(p.id)}`}>{p.name}</Link>
+            </div>
+             ))}
+
+        </div>
     );
-  }
-  
+}
