@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';import FormHelperText from '@mui/material/FormHelperText';
+import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-
+import Autocomplete from '@mui/material/Autocomplete';
 import {
   Box,
   Button,
@@ -27,7 +26,7 @@ export default function ProjectForm() {
     projectDescription: "",
     projectType: "",
   });
-
+  const [emails, setEmails] = useState<string[]>([]);
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {
       if (!error) setUser(data.user);
@@ -62,19 +61,44 @@ export default function ProjectForm() {
       },
     ]).select().single();
 
-    if (error) {
+    const {data: data1, error: error1} = await supabase.from("project_members").insert ([
+      {
+        project_id: data.id,
+        user_id: user.id,
+        role: "owner",
+      }
+    ]).select().single();
+
+
+    if (error || error1) {
       console.error(error);
     } else {
+
+      console.log(emails);
+      console.log(data);
+      console.log(data1);
       alert("Project created successfully");
-      if (data) {
+      if (data && data1) {
         router.push(
             `/protected/specific_project?project=${encodeURIComponent(data.id)}`
         );
         };
       setFormData({ projectName: "", projectDescription: "", projectType: ""});
-      
+
+
+      await fetch("/api/send_invite", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // important!
+      },
+      body: JSON.stringify({
+        emails: emails // must be an array
+        }),
+      });
     }
+
   };
+
 
   return (
     <Box
@@ -135,6 +159,22 @@ export default function ProjectForm() {
                 sx: { borderRadius: 2 },
               }}
             />
+
+          <Autocomplete
+                  multiple
+                  freeSolo
+                  options={["cuapioleonardo@gmail.com", "test@test.com"]} // Optional: list of existing users for suggestions
+                  value={emails}
+                  onChange={(event, newValue) => setEmails(newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Invite Collaborators (Emails)"
+                      variant="outlined"
+                      fullWidth
+                    />
+                  )}
+                />
 
             <FormControl>
                     <Select

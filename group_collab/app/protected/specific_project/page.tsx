@@ -2,6 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import Task from "@/components/new/task";
 
 export default function specificProject () {
     const searchParams = useSearchParams();
@@ -12,6 +13,9 @@ export default function specificProject () {
     const [loading, setLoading] = useState<any>(true);
     useEffect(() => {
         if (!project) return;
+
+        setprojectData(null);
+        setLoading(true);
 
         const getProjectById = async () => { 
             const {data, error} = await supabase.from("projects").select("*").eq("id", project).maybeSingle();
@@ -36,7 +40,8 @@ export default function specificProject () {
             <p>{projectData.name}</p>
             <p>{projectData.description}</p>
             <p>{projectData.project_type}</p>
-            
+            <Task projectId={projectData.id || ""} />
+
         </>
     )
 }

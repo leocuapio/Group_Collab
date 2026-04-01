@@ -14,9 +14,9 @@ type Project = {
 
 export default function FoldersList() {
     const supabase = createClient();
-    const [user, setUser] = useState<User | null>(null);
     const [userName, setUserName] = useState<string | null>(null);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [loading, setLoading] = useState<any>(true);
 
 
   useEffect(() => {
@@ -26,6 +26,8 @@ export default function FoldersList() {
       } = await supabase.auth.getUser();
 
       if (!user) return;
+      setProjects([]);
+      setLoading(true);
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -35,17 +37,30 @@ export default function FoldersList() {
 
       if (profile) setUserName(profile.username);
 
-      const { data: projects } = await supabase
+      const { data, error } = await supabase
         .from("projects")
-        .select("*");
+        .select(`
+          *,
+          project_members!inner(user_id)
+        `)
+        .eq("project_members.user_id", user.id);
+              
 
-      setProjects(projects ?? []);
+      if (error) {
+        console.error("Error fetching projects:", error);
+        setLoading(false);
+        return;
+      }
+
+      setProjects(data);
+      setLoading(false);
     };
 
     load();
   }, []);
 
-
+  if (loading) return <p>Loading projects...</p>
+  if (!projects) return <p>Projects not found</p>
     return (
         <div>
             <h1>Folders List</h1>
