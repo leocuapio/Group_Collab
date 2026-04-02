@@ -46,7 +46,7 @@ export default function ProjectForm() {
       [e.target.name]: e.target.value,
     }));
   };
-  
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ export default function ProjectForm() {
       },
     ]).select().single();
 
-    const {data: data1, error: error1} = await supabase.from("project_members").insert ([
+    const { data: data1, error: error1 } = await supabase.from("project_members").insert([
       {
         project_id: data.id,
         user_id: user.id,
@@ -80,23 +80,23 @@ export default function ProjectForm() {
       alert("Project created successfully");
       if (data && data1) {
         router.push(
-            `/protected/specific_project?project=${encodeURIComponent(data.id)}`
+          `/protected/specific_project?project=${encodeURIComponent(data.id)}`
         );
-        };
-      setFormData({ projectName: "", projectDescription: "", projectType: ""});
+      };
+      setFormData({ projectName: "", projectDescription: "", projectType: "" });
 
 
       await fetch("/api/send_invite", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json", // important!
-      },
-      body: JSON.stringify({
-        emails: emails // must be an array
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // important!
+        },
+        body: JSON.stringify({
+          emails: emails, // must be an array
+          project_id: data.id
         }),
       });
     }
-
   };
 
 
@@ -160,38 +160,38 @@ export default function ProjectForm() {
               }}
             />
 
-          <Autocomplete
-                  multiple
-                  freeSolo
-                  options={["cuapioleonardo@gmail.com", "test@test.com"]} // Optional: list of existing users for suggestions
-                  value={emails}
-                  onChange={(event, newValue) => setEmails(newValue)}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Invite Collaborators (Emails)"
-                      variant="outlined"
-                      fullWidth
-                    />
-                  )}
+            <Autocomplete
+              multiple
+              freeSolo
+              options={["cuapioleonardo@gmail.com", "test@test.com"]} // Optional: list of existing users for suggestions
+              value={emails}
+              onChange={(event, newValue) => setEmails(newValue)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Invite Collaborators (Emails)"
+                  variant="outlined"
+                  fullWidth
                 />
+              )}
+            />
 
             <FormControl>
-                    <Select
-                    name = "projectType"
-                    value={formData.projectType}
-                    onChange={handleSelectChange}
-                    displayEmpty
-                    >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={"general"}>General</MenuItem>
-                    <MenuItem value={"software"}>Software</MenuItem>
-                    <MenuItem value={"notes"}>Notes</MenuItem>
-                    <MenuItem value={"case"}>Case</MenuItem>
-                    <MenuItem value={"tracker"}>Tracker</MenuItem>
-                    </Select>
+              <Select
+                name="projectType"
+                value={formData.projectType}
+                onChange={handleSelectChange}
+                displayEmpty
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={"general"}>General</MenuItem>
+                <MenuItem value={"software"}>Software</MenuItem>
+                <MenuItem value={"notes"}>Notes</MenuItem>
+                <MenuItem value={"case"}>Case</MenuItem>
+                <MenuItem value={"tracker"}>Tracker</MenuItem>
+              </Select>
             </FormControl>
 
             <Box mt={4} display="flex" justifyContent="flex-end">
@@ -209,7 +209,7 @@ export default function ProjectForm() {
                 Create Project
               </Button>
             </Box>
-            
+
           </Box>
         </CardContent>
       </Card>

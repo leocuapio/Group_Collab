@@ -9,26 +9,33 @@ console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY); // should print your
 
 // Send a single invite email
 async function sendInviteEmail(email: string, token: string) {
-  const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/protected/invite?token=${token}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const inviteLink = `${baseUrl}/protected/invite?token=${token}`;
 
-  try {
-    await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "You're invited!",
-      html: `
-        <h2>You’ve been invited 🎉</h2>
-        <p>Click below to accept:</p>
-        <a href="${inviteLink}">Accept Invite</a>
-      `,
-    });
-  } catch (error) {
-    console.error(`Failed to send invite to ${email}:`, error);
+  console.log("Sending to:", email);
+  console.log("Invite link:", inviteLink);
+
+  const { data, error } = await resend.emails.send({
+    from: 'Your App <onboarding@resend.dev>',
+    to: email,
+    subject: "You're invited!",
+    html: `
+      <h2>You’ve been invited 🎉</h2>
+      <p>Click below to accept:</p>
+      <a href="${inviteLink}">Accept Invite</a>
+    `,
+  });
+
+  if (error) {
+    console.error("RESEND ERROR:", error);
+    throw error;
   }
+
+  console.log("EMAIL SENT:", data);
 }
 
 // Create a single invite in Supabase and send email
-async function createInvite(email: string) {
+async function createInvite(email: string, project_id: string) {
   const token = randomUUID();
   const supabase = createClient();
 
@@ -36,15 +43,17 @@ async function createInvite(email: string) {
     email,
     token,
     status: "pending",
+    project_id,
+    expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString()
   });
 
   await sendInviteEmail(email, token);
 }
 
 // Invite multiple emails sequentially
-async function inviteAll(emails: string[]) {
+async function inviteAll(emails: string[], project_id: string) {
   for (const email of emails) {
-    await createInvite(email);
+    await createInvite(email, project_id);
   }
 }
 
@@ -53,12 +62,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const emails: string[] = body.emails;
+    const project_id: string = body.project_id
 
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return NextResponse.json({ error: "Please provide an array of emails" }, { status: 400 });
     }
 
-    await inviteAll(emails);
+    await inviteAll(emails, project_id);
 
     return NextResponse.json({ success: true, invited: emails.length });
   } catch (error: any) {

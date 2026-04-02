@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import Task from "@/components/new/task";
 
+
+
 export default function specificProject () {
     const searchParams = useSearchParams();
     const project = searchParams.get("project")
