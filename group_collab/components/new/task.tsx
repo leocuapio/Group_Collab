@@ -1,16 +1,19 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useUser } from "@/providers/AuthProvider";
 
 interface Task {
   title: string;
   description: string;
+  task_designation: string;
 }
 
-export default function Task( { projectId }: { projectId: string } ) {
+export default function Task( { projectId }: { projectId: string  } ) {
   const supabase = createClient();
   const [task, setTask] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState({ title: "", description: "", project_id: projectId });
+    const { user } = useUser();
+  const [newTask, setNewTask] = useState({ title: "", description: "", project_id: projectId, created_by: user?.id || "" });
   async function fetchTasks() {
     const { data, error } = await supabase
       .from("tasks")
@@ -33,17 +36,20 @@ export default function Task( { projectId }: { projectId: string } ) {
     }
 
     await fetchTasks();
-    setNewTask({ title: "", description: "", project_id: projectId });
+    setNewTask({ title: "", description: "", project_id: projectId, created_by: user?.id || "" });
   }
 
   useEffect(() => {  
     fetchTasks();
   }, [projectId]);
 
+
+
   return (
     <>
       <div>
         <h1>Hello this is the Tasks</h1>
+        <p>Project ID: {projectId}</p>
       </div>
       <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title: </label>

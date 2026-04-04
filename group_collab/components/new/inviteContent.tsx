@@ -3,23 +3,16 @@
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
+
+import { useUser } from "@/providers/AuthProvider";
+
 
 export default function InviteContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-
   const supabase = createClient();
-
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useUser();
   const [status, setStatus] = useState("loading");
-
-  // 1. Get user
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
 
   // 2. Handle invite logic
   useEffect(() => {

@@ -3,16 +3,15 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import Task from "@/components/new/task";
+import { useUser } from "@/providers/AuthProvider";
 
-
-
-export default function specificProject () {
+export default  function specificProject () {
     const searchParams = useSearchParams();
     const project = searchParams.get("project")
     const supabase = createClient();
-
     const [projectData, setprojectData] = useState<any>(null);
     const [loading, setLoading] = useState<any>(true);
+    const { user } = useUser();
     useEffect(() => {
         if (!project) return;
 
@@ -42,7 +41,7 @@ export default function specificProject () {
             <p>{projectData.name}</p>
             <p>{projectData.description}</p>
             <p>{projectData.project_type}</p>
-            <Task projectId={projectData.id || ""} />
+            <Task projectId={projectData.id || ""}/>
 
         </>
     )

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { AuthProvider } from "@/providers/AuthProvider";
+import { createClient } from "@/lib/supabase/server";
+
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -19,11 +22,17 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+    const supabase = await createClient();
+
+      const {
+    data: { session },
+  } = await supabase.auth.getSession();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased`}>
@@ -33,7 +42,9 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange
         >
+          <AuthProvider initialSession={session}>
           {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
