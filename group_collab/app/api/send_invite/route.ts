@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { createClient } from "@/lib/supabase/client";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Resend } from "resend";
 
 // Make sure this runs on server only
 const resend = new Resend(process.env.RESEND_API_KEY);
-console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY); // should print your key
 
 // Send a single invite email
 async function sendInviteEmail(email: string, token: string) {
@@ -37,7 +36,7 @@ async function sendInviteEmail(email: string, token: string) {
 // Create a single invite in Supabase and send email
 async function createInvite(email: string, project_id: string) {
   const token = randomUUID();
-  const supabase = createClient();
+  const supabase = await createServerSupabaseClient();
 
   await supabase.from("invites").insert({
     email,
@@ -47,7 +46,12 @@ async function createInvite(email: string, project_id: string) {
     expires_at: new Date(Date.now() + 2*24*60*60*1000).toISOString()
   });
 
-  await sendInviteEmail(email, token);
+  // TODO: Uncomment this when the email service is working
+  // await sendInviteEmail(email, token);
+
+  // Print the invite link to the console (for testing purposes)
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  console.log("Invite link:", `${baseUrl}/protected/invite?token=${token}`); 
 }
 
 // Invite multiple emails sequentially

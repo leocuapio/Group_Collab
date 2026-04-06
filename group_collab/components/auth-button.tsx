@@ -1,22 +1,49 @@
+"use client"
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { createClient } from "@/lib/supabase/server";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { LogoutButton } from "./logout-button";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import { Profile } from "@/lib/types";
 
 
-export async function AuthButton() {
-  const supabase = await createClient();
+export function AuthButton() {
+  const supabase = createBrowserSupabaseClient();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
 
-  // You can also use getUser() which will be slower.
-  const { data } = await supabase.auth.getClaims();
-
-  const user = data?.claims;
-  console.log("user", user);
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+  
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
+          .maybeSingle();
+        setProfile({
+          id: user?.id,
+          username: data?.username || user?.user_metadata?.name,
+          full_name: user?.user_metadata?.name,
+          user: user
+        });
+      }
+  
+      setLoading(false);
+    };
+  
+    fetchUser();
+  }, []);
+ if (loading) return <p>Loading...</p>;
+ if (!user) return <p>Not logged in</p>;
+ if (!profile) return <p>No profile found</p>;
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
+      Hey, {profile?.username}!
       {/* Profile icon to link to the profile page */}
       <Link
         href="/protected/profile"

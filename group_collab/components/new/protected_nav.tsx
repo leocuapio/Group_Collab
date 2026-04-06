@@ -12,7 +12,7 @@ export default function ProtectedNav() {
       <div className="mx-auto max-w-5xl h-full flex items-center justify-between px-5 text-sm">
         <div className="flex items-center gap-5 font-semibold">
           <Link href="/protected/projects">
-            Next.js Supabase Starter
+            Name Placement
           </Link>
           <RandomButton />
         </div>

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
 type Project = {
@@ -10,7 +10,7 @@ type Project = {
 
 export default async function FoldersList() {
 
-  const supabase = await createClient();
+  const supabase = await createServerSupabaseClient();
 
   const {
     data:{user}
@@ -25,6 +25,7 @@ export default async function FoldersList() {
     .select("username")
     .eq("id", user.id)
     .maybeSingle();
+  
 
   const { data: projects,error } =
     await supabase
@@ -34,6 +35,8 @@ export default async function FoldersList() {
       project_members!inner(user_id)
     `)
     .eq("project_members.user_id",user.id);
+  
+  console.log("hi", projects)
 
   if(error){
     console.error(error);

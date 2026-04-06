@@ -1,79 +1,43 @@
 "use client";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import {useState } from "react";
 import { useUser } from "@/providers/AuthProvider";
+import MemberSelect from "./memberSelect";
+import TaskForm from "./taskForm";
+import type { Task, Profile } from "@/lib/types"; 
 
-interface Task {
-  title: string;
-  description: string;
-  task_designation: string;
-}
-
-export default function Task( { projectId }: { projectId: string  } ) {
-  const supabase = createClient();
+export default function Task({ projectId }: { projectId: string }) {
   const [task, setTask] = useState<Task[]>([]);
-    const { user } = useUser();
-  const [newTask, setNewTask] = useState({ title: "", description: "", project_id: projectId, created_by: user?.id || "" });
-  async function fetchTasks() {
-    const { data, error } = await supabase
-      .from("tasks")
-      .select("*")
-      .eq("project_id", projectId)
-      .order("created_at", { ascending: true });
-    if (error) {
-      console.log(error);
-      return;
-    }
-    setTask(data);
-  }
-
-  async function handleSubmit(e: any) {
-    e.preventDefault();
-
-    const { error } = await supabase.from("tasks").insert(newTask).single();
-    if (error) {
-      console.error("Error adding task", error.message);
-    }
-
-    await fetchTasks();
-    setNewTask({ title: "", description: "", project_id: projectId, created_by: user?.id || "" });
-  }
-
-  useEffect(() => {  
-    fetchTasks();
-  }, [projectId]);
-
-
+  const [members, setMembers] = useState<Profile[]>([]);
 
   return (
     <>
+    
       <div>
-        <h1>Hello this is the Tasks</h1>
+        <h1><b>Hello this is the Tasks</b></h1>
         <p>Project ID: {projectId}</p>
       </div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="title">Title: </label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          onChange={(e) =>
-            setNewTask((prev) => ({ ...prev, title: e.target.value }))
-          }
-        />
-        <br></br>
-        <label htmlFor="title">Description: </label>
-        <input
-          type="text"
-          id="description"
-          name="description"
-          onChange={(e) =>
-            setNewTask((prev) => ({ ...prev, description: e.target.value }))
-          }
-        />
-        <br></br>
-        <button type="submit">Submit</button>
-      </form>
+
+      <TaskForm
+        projectId={projectId}
+        setTask={setTask}
+        members={members}
+        setMembers={setMembers}
+      />
+
+      <div>
+        <h2>Project Members</h2>
+        {members.length === 0 ? (
+          <p>No members found</p>
+        ) : (
+          <ul>
+            {members.map((member) => (
+              <li key={member.id}>
+                {member.full_name} ({member.username})
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {task.map((task, key) => (
         <div key={key}>

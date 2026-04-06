@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import MenuItem from '@mui/material/MenuItem';
@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 
 export default function ProjectForm() {
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
 import { useUser } from "@/providers/AuthProvider";
@@ -10,7 +10,7 @@ import { useUser } from "@/providers/AuthProvider";
 export default function InviteContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
-  const supabase = createClient();
+  const supabase = createBrowserSupabaseClient();
   const { user } = useUser();
   const [status, setStatus] = useState("loading");
 
