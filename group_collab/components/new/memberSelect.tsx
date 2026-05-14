@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
-import { useUser } from "@/providers/AuthProvider";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";

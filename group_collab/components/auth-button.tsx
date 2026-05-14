@@ -12,7 +12,7 @@ export function AuthButton() {
   const supabase = createBrowserSupabaseClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUser = async () => {

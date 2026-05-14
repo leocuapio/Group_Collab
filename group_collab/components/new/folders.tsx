@@ -1,13 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
-type Project = {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-}
-
 export default async function FoldersList() {
 
   const supabase = await createServerSupabaseClient();
@@ -57,7 +50,7 @@ export default async function FoldersList() {
 
       {projects.map((p)=>(
         <div key={p.id}>
-          <Link href={`/protected/specific_project?project=${p.id}`}>
+          <Link href={`/protected/specific_projects/${p.id}`}>
             {p.name}
           </Link>
         </div>
